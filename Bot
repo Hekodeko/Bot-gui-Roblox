@@ -1,0 +1,120 @@
+-- Creating the GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CustomGUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.3, 0, 0.4, 0)
+Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.Parent = ScreenGui
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0.1, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Input Text"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 24
+Title.TextStrokeTransparency = 0.5
+Title.Parent = Frame
+
+-- TextBox for input
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(1, -10, 0.2, 0)
+TextBox.Position = UDim2.new(0, 5, 0.1, 0)
+TextBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextBox.TextSize = 18
+TextBox.ClearTextOnFocus = false
+TextBox.Parent = Frame
+
+-- Button to start bot
+local StartButton = Instance.new("TextButton")
+StartButton.Size = UDim2.new(1, -10, 0.2, 0)
+StartButton.Position = UDim2.new(0, 5, 0.4, 0)
+StartButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+StartButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+StartButton.Text = "Click to start bot"
+StartButton.TextSize = 18
+StartButton.Parent = Frame
+
+-- Label to display made by
+local MadeByLabel = Instance.new("TextLabel")
+MadeByLabel.Size = UDim2.new(1, -10, 0.1, 0)
+MadeByLabel.Position = UDim2.new(0, 5, 0.7, 0)
+MadeByLabel.BackgroundTransparency = 1
+MadeByLabel.Text = "Made by ismaha08"
+MadeByLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+MadeByLabel.TextSize = 14
+MadeByLabel.TextStrokeTransparency = 0.5
+MadeByLabel.Parent = Frame
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+CloseButton.Position = UDim2.new(1, -20, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Text = "X"
+CloseButton.TextSize = 18
+CloseButton.Parent = Frame
+
+-- Script to handle the bot functionality
+local isBotRunning = false
+local botText = ""
+
+StartButton.MouseButton1Click:Connect(function()
+    if isBotRunning then
+        isBotRunning = false
+        StartButton.Text = "Click to start bot"
+    else
+        isBotRunning = true
+        StartButton.Text = "Click to stop bot"
+        while isBotRunning do
+            wait(1)
+            if botText ~= "" then
+                game:GetService("Players").LocalPlayer:SendChatMessage(botText)
+            end
+        end
+    end
+end)
+
+TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    botText = TextBox.Text
+end)
+
+-- Close Button Functionality
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Draggable Functionality
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+Frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        update(input)
+    end
+end)
